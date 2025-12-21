@@ -1,50 +1,45 @@
 from flask import Flask, render_template, request
 import sqlite3
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-def get_db():
-    return sqlite3.connect("finance.db")
 
-def init_db():
-    db = get_db()
-    cur = db.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS expenses (
-            id INTEGER PRIMARY KEY,
-            amount REAL,
-            category TEXT
-        )
-    """)
-    db.commit()
-    db.close()
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finance.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+with app.app_context():
+    db.create_all()
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    db = get_db()
-    cur = db.cursor()
+    # db = sqlite3.connect("finance.db")
+    # cur = db.cursor()
 
-    if request.method == "POST":
-        amount = request.form["amount"]
-        category = request.form["category"]
+    # if request.method == "POST":
+    #     amount = request.form["amount"]
+    #     category = request.form["category"]
 
-        cur.execute(
-            "INSERT INTO expenses VALUES (NULL, ?, ?)",
-            (amount, category)
-        )
-        db.commit()
+    #     cur.execute(
+    #         "INSERT INTO expenses VALUES (NULL, ?, ?)",
+    #         (amount, category)
+    #     )
+    #     db.commit()
 
-    cur.execute("SELECT SUM(amount) FROM expenses")
-    total = cur.fetchone()[0] or 0
+    # cur.execute("SELECT SUM(amount) FROM expenses")
+    # total = cur.fetchone()[0] or 0
 
-    cur.execute("SELECT amount, category FROM expenses")
-    expenses = cur.fetchall()
+    # cur.execute("SELECT amount, category FROM expenses")
+    # expenses = cur.fetchall()
 
 
-    db.close()
-    return render_template("index.html", total=total, expenses=expenses)
+    # db.close()
+    return render_template("index.html")
 
-init_db()
+
 
 if __name__ == "__main__":
     app.run(debug=True)
