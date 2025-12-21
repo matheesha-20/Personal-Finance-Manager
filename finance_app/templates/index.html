@@ -15,12 +15,43 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
+
+  <script>
+  
+  setTimeout(() => {
+    const flashContainer = document.getElementById('flash-messages');
+    if(flashContainer){
+      flashContainer.style.transition = "opacity 0.5s ease";
+      flashContainer.style.opacity = 0;
+      setTimeout(() => flashContainer.remove(), 500);
+    }
+  }, 500);
+</script>
+
+
   <body class="h-full bg-slate-900 text-slate-100">
     <main class="mx-auto max-w-6xl px-4 py-8">
       <h1 class="text-3xl font-semibold mb-2">Dashboard</h1>
       <p class="text-slate-400 mb-6">
         Track spending, filter by date/category, and visualize instantly.
       </p>
+
+
+        <div id="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                    <div class="px-4 py-2 rounded-lg mb-2 bg-opacity-10 
+                    {% if category == 'success' %}bg-green-600 text-green-500{% elif category == 'error' %}bg-red-600 text-red-600{% else %}bg-gray-600 text-gray-500{% endif %}"
+                    >
+                    {{ message }}
+                    </div>
+                {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+
 
       <!-- Filters + Add form -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -94,10 +125,13 @@
         <!-- Add Expense -->
         <section class="rounded-2xl border border-slate-800 bg-slate-900 p-4">
           <h2 class="text-lg font-semibold mb-3">Add Expense</h2>
-          <form class="space-y-3">
+          <form  method="post" action="{{url_for('add')}}"  class="space-y-3">
             <label class="block text-sm">
-              <span class="mb-1 block text-slate-300">Description</span>
+              <span class="mb-1 block text-slate-300">Name</span>
               <input
+                type="text"
+                 name="name"
+                 required
                 placeholder="e.g., Groceries"
                 class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
               />
@@ -107,9 +141,11 @@
                 <span class="mb-1 block text-slate-300">Amount</span>
                 <input
                   type="number"
-                  step="0.01"
-                  min="0.01"
+                  step="1"
+                  min="0"
+                  name="amount"
                   placeholder="25.00"
+                  required
                   class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
                 />
               </label>
@@ -117,6 +153,8 @@
                 <span class="mb-1 block text-slate-300">Date</span>
                 <input
                   type="date"
+                  name="date"
+                  required
                   class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
                 />
               </label>
@@ -124,6 +162,8 @@
             <label class="block text-sm">
               <span class="mb-1 block text-slate-300">Category</span>
               <select
+                name="category"
+                 required
                 class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
               >
                 <option>Food</option>
