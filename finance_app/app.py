@@ -34,27 +34,35 @@ with app.app_context():
     @app.route("/")
     def index():
 
-        start_date = parse_date_or_none(request.args.get("start"))
-        end_date = parse_date_or_none(request.args.get("end"))
-        category = request.args.get("category")
+        start_str = (request.args.get("start") or "").strip()
+        end_str = (request.args.get("end") or "").strip()
 
-        query = Expense.query
+        start_date = parse_date_or_none(start_str)
+        end_date = parse_date_or_none(end_str)
 
+        if start_date and end_date and end_date < start_date:
+            flash("End date cannot be earlier than start date.", "error")
+            start_date = end_date = None
+            start_str = end_str = ""
+            return redirect(url_for("index"))
+        
+        q = Expense.query
         if start_date:
-            query = query.filter(Expense.date >= start_date)
+            q = q.filter(Expense.date >= start_date)
         if end_date:
-            query = query.filter(Expense.date <= end_date)
-        if category:
-            query = query.filter(Expense.category == category)
+            q = q.filter(Expense.date <= end_date)
 
-        expenses = query.order_by(Expense.date.desc(), Expense.id.desc()).all()
+        expenses = q.order_by(Expense.date.desc(), Expense.id.desc()).all()
         total = sum(e.amount for e in expenses)
         return render_template(
 
             "index.html", 
             expenses=expenses,
             total=total,
-            categories=CATEGORIES
+            categories=CATEGORIES,
+            start_date=start_str,
+            end_date=end_str,
+            today=datetime.today().date()
         )
 
 
