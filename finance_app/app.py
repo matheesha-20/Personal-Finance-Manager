@@ -25,13 +25,32 @@ with app.app_context():
 
     CATEGORIES = ['Food', 'Transport', 'Utilities', 'Entertainment', 'Rent', 'Health', 'Other']
 
+    def parse_date_or_none(date_str):
+        try:
+            return datetime.strptime(date_str, "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            return None
 
     @app.route("/")
     def index():
-        expenses = Expense.query.order_by(Expense.date.desc(), Expense.id.desc()).all()
+
+        start_date = parse_date_or_none(request.args.get("start"))
+        end_date = parse_date_or_none(request.args.get("end"))
+        category = request.args.get("category")
+
+        query = Expense.query
+
+        if start_date:
+            query = query.filter(Expense.date >= start_date)
+        if end_date:
+            query = query.filter(Expense.date <= end_date)
+        if category:
+            query = query.filter(Expense.category == category)
+
+        expenses = query.order_by(Expense.date.desc(), Expense.id.desc()).all()
         total = sum(e.amount for e in expenses)
         return render_template(
-            
+
             "index.html", 
             expenses=expenses,
             total=total,
@@ -59,6 +78,14 @@ with app.app_context():
         db.session.commit()
 
         flash("Expense added successfully!", "success")
+        return redirect(url_for("index"))
+
+    @app.route("/delete/<int:expense_id>", methods=["POST"])
+    def delete(expense_id):
+        expense = Expense.query.get_or_404(expense_id)
+        db.session.delete(expense)
+        db.session.commit()
+        flash("Expense deleted successfully!", "success")
         return redirect(url_for("index"))
 
    
