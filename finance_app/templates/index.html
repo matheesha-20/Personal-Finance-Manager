@@ -80,10 +80,9 @@
               <select
                 class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
               >
-                <option value="">All</option>
-                <option>Food</option>
-                <option>Transport</option>
-                <option>Utilities</option>
+                {% for cat in categories %}
+                <option>{{ cat }}</option>
+                {% endfor %}
               </select>
             </label>
             <div class="flex gap-2">
@@ -166,10 +165,9 @@
                  required
                 class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
               >
-                <option>Food</option>
-                <option>Transport</option>
-                <option>Rent</option>
-                <option>Utilities</option>
+                {% for cat in categories %}
+                    <option>{{ cat }}</option>
+                {% endfor %}
               </select>
             </label>
             <button
@@ -209,11 +207,16 @@
               </tr>
             </thead>
             <tbody>
+
+                {% if expenses %}
+
+                {% for expense in expenses %}
+
               <tr class="border-t border-slate-800 hover:bg-slate-800/30">
-                <td class="px-4 py-2">2025-09-25</td>
-                <td class="px-4 py-2">Groceries</td>
-                <td class="px-4 py-2">Food</td>
-                <td class="px-4 py-2 text-right">$25.00</td>
+                <td class="px-4 py-2">{{ expense.date }}</td>
+                <td class="px-4 py-2">{{ expense.name }}</td>
+                <td class="px-4 py-2">{{ expense.category }}</td>
+                <td class="px-4 py-2 text-right">${{ "%.2f"|format(expense.amount) }}</td>
                 <td class="px-4 py-2 text-right">
                   <button
                     class="text-rose-300 hover:text-rose-200 text-xs border border-rose-400/30 px-3 py-1 rounded-lg"
@@ -222,11 +225,19 @@
                   </button>
                 </td>
               </tr>
+
+                {% endfor %}
+
+                {% else %}
+
               <tr>
                 <td colspan="5" class="px-4 py-6 text-center text-slate-400">
                   No expenses yet — add your first one above.
                 </td>
               </tr>
+
+                {% endif %}
+
             </tbody>
           </table>
         </div>

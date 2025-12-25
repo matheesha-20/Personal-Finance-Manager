@@ -23,60 +23,45 @@ class Expense(db.Model):
 with app.app_context():
     db.create_all()
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    # db = sqlite3.connect("finance.db")
-    # cur = db.cursor()
+    CATEGORIES = ['Food', 'Transport', 'Utilities', 'Entertainment', 'Rent', 'Health', 'Other']
 
-    # if request.method == "POST":
-    #     amount = request.form["amount"]
-    #     category = request.form["category"]
-
-    #     cur.execute(
-    #         "INSERT INTO expenses VALUES (NULL, ?, ?)",
-    #         (amount, category)
-    #     )
-    #     db.commit()
-
-    # cur.execute("SELECT SUM(amount) FROM expenses")
-    # total = cur.fetchone()[0] or 0
-
-    # cur.execute("SELECT amount, category FROM expenses")
-    # expenses = cur.fetchall()
-
-
-    # db.close()
-    return render_template("index.html")
-
-@app.route("/add", methods=["POST"])
-def add():
-    
-    name = request.form["name"]
-    amount = request.form["amount"]
-    date_str = request.form["date"]
-    category = request.form["category"]
-
-
-    date = datetime.strptime(date_str, "%Y-%m-%d").date()
-
-    new_expense = Expense(name=name, amount=amount, date=date, category=category)
-    db.session.add(new_expense)
-    db.session.commit()
-
-   
-
-    print(f"Added expense: {name}, {amount}, {date}, {category}")
-    
-    flash("Expense added successfully!", "success")
-
-    return redirect(url_for("index"))
 
     @app.route("/")
     def index():
-        expenses = Expense.query.order_by(Expense.date.desc()).all()
+        expenses = Expense.query.order_by(Expense.date.desc(), Expense.id.desc()).all()
         total = sum(e.amount for e in expenses)
-        return render_template("index.html", expenses=expenses, total=total)
+        return render_template(
+            
+            "index.html", 
+            expenses=expenses,
+            total=total,
+            categories=CATEGORIES
+        )
 
+
+    @app.route("/add", methods=["POST"])
+    def add():
+        name = request.form["name"]
+        amount = float(request.form["amount"])
+        date_str = request.form["date"]
+        category = request.form["category"]
+
+        date = datetime.strptime(date_str, "%Y-%m-%d").date()
+
+        new_expense = Expense(
+            name=name,
+            amount=amount,
+            date=date,
+            category=category
+        )
+
+        db.session.add(new_expense)
+        db.session.commit()
+
+        flash("Expense added successfully!", "success")
+        return redirect(url_for("index"))
+
+   
 
 
 if __name__ == "__main__":
