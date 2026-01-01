@@ -36,6 +36,7 @@ with app.app_context():
 
         start_str = (request.args.get("start") or "").strip()
         end_str = (request.args.get("end") or "").strip()
+        selected_category = request.args.get("category", "").strip()
 
         start_date = parse_date_or_none(start_str)
         end_date = parse_date_or_none(end_str)
@@ -52,8 +53,41 @@ with app.app_context():
         if end_date:
             q = q.filter(Expense.date <= end_date)
 
+        if selected_category:
+            q = q.filter(Expense.category == selected_category)
+
         expenses = q.order_by(Expense.date.desc(), Expense.id.desc()).all()
         total = sum(e.amount for e in expenses)
+
+
+        cat_q = db.session.query(Expense.category, db.func.sum(Expense.amount))
+
+        if start_date:
+            cat_q = cat_q.filter(Expense.date >= start_date)
+        if end_date:
+            cat_q = cat_q.filter(Expense.date <= end_date)
+        if selected_category:
+            cat_q = cat_q.filter(Expense.category == selected_category)
+
+        cat_row = cat_q.group_by((Expense.category)).all()
+        cat_labels = [c for c, _ in cat_row]
+        cat_values = [round(float(a or 0),2) for _, a in cat_row]
+
+
+        day_q = db.session.query(Expense.date, db.func.sum(Expense.amount))
+
+        if start_date:
+            day_q = day_q.filter(Expense.date >= start_date)
+        if end_date:
+            day_q = day_q.filter(Expense.date <= end_date)
+        if selected_category:
+            day_q = day_q.filter(Expense.category == selected_category)
+
+        day_row = day_q.group_by((Expense.date)).order_by(Expense.date).all()
+        day_labels = [c.isoformat() for c, _ in day_row]
+        day_values = [round(float(a or 0),2) for _, a in day_row]
+
+
         return render_template(
 
             "index.html", 
@@ -62,7 +96,14 @@ with app.app_context():
             categories=CATEGORIES,
             start_date=start_str,
             end_date=end_str,
-            today=datetime.today().date()
+            selected_category=selected_category,
+            today=datetime.today().date(),
+            notifications=1,
+            cat_labels=cat_labels,
+            cat_values=cat_values,
+            day_labels=day_labels,
+            day_values=day_values
+
         )
 
 

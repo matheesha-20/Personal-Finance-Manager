@@ -16,23 +16,117 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
 
-  <script>
-  
-  setTimeout(() => {
-    const flashContainer = document.getElementById('flash-messages');
-    if(flashContainer){
-      flashContainer.style.transition = "opacity 0.5s ease";
-      flashContainer.style.opacity = 0;
-      setTimeout(() => flashContainer.remove(), 500);
-    }
-  }, 500);
-</script>
+  <body class="h-full bg-[#c9c1b1]/90 text-[#fe7f2d] font-sans">
+    <header class="bg-slate-900 border-b border-slate-800">
+    <nav class="w-full px-6 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-3 mr-auto pl-0">
+        <a href="{{ url_for('index') }}" class="text-3xl font-bold text-[#fe7f2d]">Expense Tracker</a>
+        <span class="hidden md:inline text-slate-400 text-sm mt-2">Track spending, categorize, and visualize</span>
+      </div>
+
+      <div class="hidden md:flex items-center gap-4 text-l pr-5">
+        <a href="{{ url_for('index') }}" class="text-slate-300 hover:text-white">Home</a>
+        <a href="{{ url_for('index') }}" class="text-slate-300 hover:text-white">Dashboard</a>
+        <a href="#" class="text-slate-300 hover:text-white">Reports</a>
+        <a href="#" class="text-slate-300 hover:text-white">Categories</a>
+        <!-- Notification button -->
+    <button class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-500/10">
+      <div class="relative">
+  <svg xmlns="http://www.w3.org/2000/svg"
+       viewBox="0 0 24 24"
+       fill="currentColor"
+       stroke="currentColor"
+       stroke-width="1.8"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       class="w-5 h-5 text-slate-300">
+    <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7" />
+    <path d="M13.73 21a2 2 0 01-3.46 0" />
+  </svg>
+  {% if notifications > 0 %}
+  <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+  {% endif %}
+</div>
+
+    </button>
+
+    <!-- Profile button -->
+    <button class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-500/10">
+      <svg xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          class="w-10 h-10">
+        
+        <!-- solid background -->
+        <circle cx="12" cy="12" r="12" fill="grey" fill-opacity="0.2" />
+
+        <!-- user cutout -->
+        <path d="M12 12a3 3 0 100-6 3 3 0 000 6z"
+              fill="currentColor"/>
+        <path d="M6.5 17.5c1.8-2.2 9.2-2.2 11 0"
+              fill="currentColor"/>
+      </svg>
 
 
-  <body class="h-full bg-slate-900 text-slate-100">
+    </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+
+        <button id="mobile-menu-toggle" aria-expanded="false" class="md:hidden p-2 rounded bg-slate-800 border border-slate-700 text-slate-200">
+          <svg id="hamburger" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+          </svg>
+          <svg id="close-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <div id="mobile-menu" class="md:hidden px-4 pb-3 hidden">
+  <div class="flex flex-col gap-2">
+
+    <a href="{{ url_for('index') }}"
+       class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-800/50">
+      Home
+    </a>
+
+    <a href="{{ url_for('index') }}"
+       class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-800/50">
+      Dashboard
+    </a>
+
+    <a href="#"
+       class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-800/50">
+      Reports
+    </a>
+
+    <a href="#"
+       class="block px-3 py-2 rounded text-slate-300 hover:bg-slate-800/50">
+      Categories
+    </a>
+
+    <!-- Notification button -->
+    <button class="w-10 h-10 rounded-full bg-slate-800">
+      <img src="/static/img/bell.png" alt="Notification" class="w-5 h-5">
+    </button>
+
+    <!-- Profile button -->
+    <button class="w-10 h-10">
+      <img src="/static/profile.jpg"
+           alt="Profile"
+           class="w-full h-full object-cover rounded-full" />
+    </button>
+
+  </div>
+</div>
+  </header>
+
+  <div class="mx-12 my-16 rounded-3xl bg-stone-100/30 pt-2 pb-5">
+
     <main class="mx-auto max-w-6xl px-4 py-8">
-      <h1 class="text-3xl font-semibold mb-2">Dashboard</h1>
-      <p class="text-slate-400 mb-6">
+      <h5 class="text-3xl font-bold mb-2">Dashboard</h5>
+      <p class="text-slate-900 mb-6">
         Track spending, filter by date/category, and visualize instantly.
       </p>
 
@@ -42,7 +136,7 @@
                 {% if messages %}
                 {% for category, message in messages %}
                     <div class="px-4 py-2 rounded-lg mb-2 bg-opacity-10 
-                    {% if category == 'success' %}bg-green-600 text-green-500{% elif category == 'error' %}bg-red-600 text-red-600{% else %}bg-gray-600 text-gray-500{% endif %}"
+                    {% if category == 'success' %}bg-green-800 text-green-600{% elif category == 'error' %}bg-red-600 text-red-600{% else %}bg-gray-600 text-gray-500{% endif %}"
                     >
                     {{ message }}
                     </div>
@@ -83,36 +177,41 @@
             <label class="text-sm md:col-span-2">
               <span class="block mb-1 text-slate-300">Category</span>
               <select
+                name="category"
                 class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
               >
                 <option value="">All</option>
                 {% for cat in categories %}
-                <option>{{ cat }}</option>
+                <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
                 {% endfor %}
               </select>
             </label>
             <div class="flex gap-2">
               <button
-                class="rounded-xl bg-brand/20 hover:bg-brand/30 text-brand px-4 py-2 border border-brand/30"
+                class="rounded-xl  bg-[#e3ddd1]/20 hover:bg-[#244d6d]/30 text-[#448e5f] text-bold px-4 py-2 border border-brand/30"
                 type="submit"
               >
                 Apply
               </button>
               <a
                 class="rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-2 border border-slate-700"
-                href="#"
+                href="{{ url_for('index') }}"
                 >Reset</a
               >
             </div>
           </form>
 
           <!-- Total -->
-          <div class="mt-4 text-sm text-slate-300">
+          <div class="mt-4 text-l font-semibold text-slate-300">
             <span class="mr-2">Total:</span>
             <span
               class="inline-block rounded-xl border border-slate-700 bg-slate-800 px-3 py-1 font-semibold"
             >
+              {% if selected_category %}
+              €{{total}}
+              {% else %}
               €0.00
+              {% endif %}
             </span>
           </div>
 
@@ -159,6 +258,7 @@
                 <input
                   type="date"
                   name="date"
+                  value="{{ today }}"
                   required
                   class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
                 />
@@ -177,7 +277,7 @@
               </select>
             </label>
             <button
-              class="w-full rounded-xl bg-brand/20 hover:bg-brand/30 text-brand px-4 py-2 border border-brand/30"
+              class="w-full rounded-xl bg-brand/10 hover:bg-[#244d6d]/20 text-[#448e5f] text-bold px-4 py-2 border border-brand/30"
               type="submit"
             >
               Add Expense
@@ -188,7 +288,7 @@
 
       <!-- Total (global) -->
       <div class="mb-3 mt-6">
-        <span class="text-sm text-slate-300 mr-2">Total:</span>
+        <span class="text-xl font-bold text-slate-900 mr-2">Total:</span>
         <span
           class="inline-block rounded-xl border border-slate-700 bg-slate-800 px-3 py-1 font-semibold"
         >
@@ -218,7 +318,7 @@
 
                 {% for expense in expenses %}
 
-              <tr class="border-t border-slate-800 hover:bg-slate-800/30">
+              <tr class="border-t border-slate-800 text-slate-300 hover:bg-slate-800/30">
                 <td class="px-4 py-2">{{ expense.date }}</td>
                 <td class="px-4 py-2">{{ expense.name }}</td>
                 <td class="px-4 py-2">{{ expense.category }}</td>
@@ -266,5 +366,158 @@
         </div>
       </section>
     </main>
+
+  </div>
+    
+    
+  <footer class="mt-10 border-t border-slate-800 pt-4 text-sm text-slate-400 bg-slate-800 py-4">
+  <div class="mx-auto max-w-6xl px-4 flex flex-col md:flex-row items-center justify-between gap-3">
+    <div>© <span id="current-year"></span> Expense Tracker</div>
+    <div class="flex items-center gap-3">
+      <a href="#" class="hover:text-brand underline">Privacy</a>
+      <a href="#" class="hover:text-brand underline">Terms</a>
+      <button id="theme-toggle" class="ml-2 px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-200 text-xs">
+        Toggle theme
+      </button>
+    </div>
+  </div>
+</footer>
+
+    <script>
+    // mobile menu toggle
+    (function(){
+      const btn = document.getElementById('mobile-menu-toggle');
+      const menu = document.getElementById('mobile-menu');
+      const ham = document.getElementById('hamburger');
+      const close = document.getElementById('close-icon');
+      if(!btn || !menu) return;
+      btn.addEventListener('click', () => {
+        const open = menu.classList.toggle('hidden') === false;
+        btn.setAttribute('aria-expanded', String(open));
+        ham.classList.toggle('hidden', open);
+        close.classList.toggle('hidden', !open);
+      });
+    })();
+  </script>
+
+  <script>
+  
+  setTimeout(() => {
+    const flashContainer = document.getElementById('flash-messages');
+    if(flashContainer){
+      flashContainer.style.transition = "opacity 0.5s ease";
+      flashContainer.style.opacity = 0;
+      setTimeout(() => flashContainer.remove(), 5000);
+    }
+  }, 500);
+</script>
+
+<script>
+  // set current year
+  document.getElementById('current-year').textContent = new Date().getFullYear();
+
+  // simple theme toggle (uses 'dark' class on <html>)
+  const btn = document.getElementById('theme-toggle');
+  btn.addEventListener('click', () => {
+    const root = document.documentElement;
+    const isDark = root.classList.toggle('dark');
+    localStorage.setItem('site-theme', isDark ? 'dark' : 'light');
+  });
+
+  // restore saved theme
+  (function(){
+    const saved = localStorage.getItem('site-theme');
+    if(saved === 'dark') document.documentElement.classList.add('dark');
+  })();
+</script>
+
+<script>
+  
+  const catLabels = {{ (cat_labels or [] ) | tojson }};
+  const catValues = {{ (cat_values or [] ) | tojson }};
+
+  if (document.getElementById('catChart')) {
+    const ctxCat = document.getElementById('catChart').getContext('2d');
+    const catChart = new Chart(ctxCat, {
+      type: 'doughnut',
+      data: {
+        labels: catLabels,
+        datasets: [{
+          data: catValues,
+          backgroundColor: [
+            '#38bdf8',
+            '#f87171',
+            '#34d399',
+            '#fbbf24',
+            '#a78bfa',
+            '#f472b6',
+            '#60a5fa',
+            '#fcd34d'
+          ],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#ffffff'
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
+<script>
+  // Placeholder for dayChart - implement as needed
+  const dayLabels = {{ (day_labels or [] ) | tojson }};
+  const dayValues = {{ (day_values or [] ) | tojson }};
+  
+  if (document.getElementById('dayChart')) {
+    const ctxDay = document.getElementById('dayChart').getContext('2d');
+    const dayChart = new Chart(ctxDay, {
+      type: 'bar',
+      data: {
+        labels: dayLabels,
+        datasets: [{
+          label: 'Total',
+          data: dayValues,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#334155'
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            ticks: {
+              color: '#cbd5e1'
+            },
+            grid: {
+              color: '#475569'
+          }}],
+          yAxes: [{
+            ticks: {
+              color: '#cbd5e1'
+            },
+            grid: {
+              color: '#475569'
+          }
+          }]
+        }
+      }
+    });
+  }
+</script>
   </body>
 </html>
