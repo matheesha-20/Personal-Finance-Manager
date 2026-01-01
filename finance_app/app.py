@@ -137,6 +137,19 @@ with app.app_context():
         flash("Expense deleted successfully!", "success")
         return redirect(url_for("index"))
 
+
+    @app.route("/export_csv")
+
+    def export_csv():
+        expenses = Expense.query.order_by(Expense.date.desc(), Expense.id.desc()).all()
+        csv_data = "Name,Amount,Date,Category\n"
+        for e in expenses:
+            csv_data += f'"{e.name}",{e.amount},{e.date.isoformat()},{e.category}\n'
+        response = make_response(csv_data)
+        response.headers["Content-Disposition"] = "attachment; filename=expenses.csv"
+        response.headers["Content-Type"] = "text/csv"
+        return response
+
    
 
 

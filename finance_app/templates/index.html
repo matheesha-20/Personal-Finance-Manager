@@ -219,7 +219,7 @@
           <div class="mt-3">
             <a
               class="text-xs text-slate-400 hover:text-brand underline"
-              href="#"
+              href="{{ url_for('export_csv', start=start_date, end=end_date, category=selected_category) }}"
             >
               Export CSV (current filter)
             </a>
@@ -484,7 +484,6 @@
         datasets: [{
           label: 'Total',
           data: dayValues,
-          tension: 0.4,
           fill: true
         }]
       },
